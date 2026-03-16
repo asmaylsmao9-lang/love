@@ -2,77 +2,268 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>رسالة لرحمة ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رحمه ❤️ غيث</title>
 
 <style>
 body{
-margin:0;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(45deg,#ff4d6d,#ff8fab);
-font-family:Arial;
-text-align:center;
-color:white;
-overflow:hidden;
+  margin:0;
+  overflow:hidden;
+  font-family:sans-serif;
+  text-align:center;
+  background:linear-gradient(135deg,#f8a5c2,#ffb6d9);
+  -webkit-font-smoothing:antialiased;
 }
 
+/* خلفية قلوب */
+.background{
+  position:fixed;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
+
+.bg-heart{
+  position:absolute;
+  color:#ff6b9a;
+  opacity:0.3;
+  animation: moveUp linear infinite;
+}
+
+@keyframes moveUp{
+  from{transform:translateY(100vh);}
+  to{transform:translateY(-10vh);}
+}
+
+/* دخول */
+.container{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.9);
+  opacity:0;
+  animation: fadeIn 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+@keyframes fadeIn{
+  to{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+}
+
+/* كارد + نبض */
 .card{
-background:rgba(255,255,255,0.15);
-padding:40px;
-border-radius:20px;
-backdrop-filter:blur(10px);
-box-shadow:0 0 25px rgba(0,0,0,0.2);
+  position:relative;
+  background:linear-gradient(135deg,#fff0f8,#ffd6e7);
+  border-radius:35px;
+  padding:30px;
+  width:320px;
+  height:320px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  backdrop-filter:blur(12px);
+  box-shadow:0 20px 70px rgba(0,0,0,0.25);
+  animation:pulseGlow 2.5s infinite ease-in-out;
 }
 
-h1{font-size:40px;}
+/* نبض */
+@keyframes pulseGlow{
+  0%{box-shadow:0 0 20px #ff69b4;}
+  50%{box-shadow:0 0 50px #ff85c1;}
+  100%{box-shadow:0 0 20px #ff69b4;}
+}
+
+/* لمعة خفيفة */
+.card::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  border-radius:35px;
+  background:linear-gradient(120deg,rgba(255,255,255,0.4),transparent);
+  opacity:0.3;
+  pointer-events:none;
+}
+
+.emoji{
+  font-size:90px;
+  transition:transform 0.3s ease;
+}
+
+.text{
+  margin-top:15px;
+  background:rgba(255,255,255,0.8);
+  padding:12px;
+  border-radius:15px;
+  border:1px solid #ff69b4;
+  font-size:18px;
+  min-height:50px;
+}
 
 button{
-margin-top:20px;
-padding:12px 25px;
-border:none;
-border-radius:30px;
-background:white;
-color:#ff4d6d;
-font-size:18px;
-cursor:pointer;
+  margin-top:15px;
+  padding:12px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(135deg,#ff69b4,#ff85c1);
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+  transition:all 0.25s ease;
 }
 
+button:hover{
+  transform:scale(1.05);
+}
+
+button:active{
+  transform:scale(0.95);
+}
+
+/* زر يهتز */
+.shake{
+  animation: shake 1s infinite;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  50%{transform:translateX(3px);}
+}
+
+/* قلوب لمس */
 .heart{
-position:absolute;
-color:white;
-animation:float 6s infinite;
+  position:absolute;
+  color:#ff4d6d;
+  animation: float 1.5s ease-out forwards;
 }
 
 @keyframes float{
-0%{transform:translateY(100vh);}
-100%{transform:translateY(-10vh);}
+  to{opacity:0; transform:translateY(-120px) scale(1.8);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-<h1>رحمة</h1>
-<p>جيتلك هدية 🥺</p>
+<div class="background" id="bg"></div>
 
-<button onclick="alert('رحمة ❤️ انتِ أجمل شيء بحياتي')">
-افتحي الهدية
-</button>
+<div class="container">
+  <div class="card" id="card">
+
+    <div class="emoji" id="emoji">🥺</div>
+
+    <div class="text" id="text"></div>
+
+    <button id="btn" onclick="nextStep()">شنو هو؟</button>
+
+  </div>
 </div>
 
 <script>
-for(let i=0;i<40;i++){
-let heart=document.createElement("div");
-heart.className="heart";
-heart.innerHTML="❤️";
-heart.style.left=Math.random()*100+"%";
-heart.style.fontSize=(20+Math.random()*30)+"px";
-heart.style.animationDuration=(3+Math.random()*5)+"s";
-document.body.appendChild(heart);
+let step = 0;
+let emojis = ["🥺","😣","😔","❤️","💖"];
+
+/* كتابة سوبر سموث */
+function typeTextSmooth(element, text, speed=35){
+  element.innerHTML="";
+  let i = 0;
+
+  function animate(){
+    if(i < text.length){
+      element.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(()=>requestAnimationFrame(animate), speed);
+    }
+  }
+
+  requestAnimationFrame(animate);
 }
+
+/* خلفية قلوب */
+function createBgHearts(){
+  const bg = document.getElementById("bg");
+  for(let i=0;i<20;i++){
+    let h = document.createElement("div");
+    h.className="bg-heart";
+    h.innerHTML="💗";
+
+    h.style.left=Math.random()*100+"%";
+    h.style.fontSize=(12+Math.random()*18)+"px";
+    h.style.animationDuration=(10+Math.random()*10)+"s";
+
+    bg.appendChild(h);
+  }
+}
+createBgHearts();
+
+/* أول نص */
+window.onload = ()=>{
+  typeTextSmooth(document.getElementById("text"),"رحمه عندي سؤال محرج 🥺");
+};
+
+function nextStep(){
+  const text = document.getElementById("text");
+  const btn = document.getElementById("btn");
+  const emoji = document.getElementById("emoji");
+
+  step++;
+  emoji.innerHTML = emojis[step % emojis.length];
+
+  emoji.style.transform="scale(0.85)";
+  setTimeout(()=>emoji.style.transform="scale(1)",200);
+
+  if(step === 1){
+    typeTextSmooth(text,"بس مستحية اسألك 😣");
+    btn.innerHTML = "اسأليني";
+  }
+  else if(step === 2){
+    typeTextSmooth(text,"تحبين غيث؟ 😔");
+    btn.innerHTML = "مدري";
+  }
+  else if(step === 3){
+    typeTextSmooth(text,"اذا تحبينه دوسي ❤️");
+    btn.innerHTML = "❤️";
+  }
+  else if(step === 4){
+    typeTextSmooth(text,"احبج هواي يا رحمه ❤️🥺");
+    btn.innerHTML = "واني اكثر 😳";
+  }
+  else if(step === 5){
+    typeTextSmooth(text,"اعشقك يا رحمه 💖 هاي الأغنية إلك 🎶");
+
+    btn.style.display="none";
+
+    let songBtn = document.createElement("button");
+    songBtn.innerHTML="🎵 اضغطي هنا";
+    songBtn.classList.add("shake");
+
+    songBtn.onclick=function(){
+      window.location.href="https://youtu.be/3yLnpJ51Okg";
+    };
+
+    document.getElementById("card").appendChild(songBtn);
+  }
+}
+
+/* قلوب لمس */
+document.addEventListener("click",function(e){
+  for(let i=0;i<6;i++){
+    let heart=document.createElement("div");
+    heart.className="heart";
+    heart.innerHTML="💗";
+
+    heart.style.left=(e.clientX+Math.random()*40-20)+"px";
+    heart.style.top=(e.clientY+Math.random()*40-20)+"px";
+
+    document.body.appendChild(heart);
+
+    setTimeout(()=>heart.remove(),1500);
+  }
+});
 </script>
 
 </body>
